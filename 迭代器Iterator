@@ -1,0 +1,106 @@
+前段时间开发的时候碰到返回Iterator数据，使用var_dump打印数据只有一个空对象
+class MongoDB\Model\CollectionInfoCommandIterator#27 (0) {
+}
+一时没搞明白是什么原因，最后才发现是Iterator隐藏了数据。
+现在记录一下Iterator原理
+迭代器是一种设计模式，提供一种方法顺序访问一个聚合对象中各个元素，而又不暴露该对象的内部显示
+
+PHP5开始支持了接口， 并且内置了Iterator接口， 所以如果你定义了一个类，并实现了Iterator接口，那么你的这个类对象就是ZEND_ITER_OBJECT,
+否则就是ZEND_ITER_PLAIN_OBJECT.对于ZEND_ITER_PLAIN_OBJECT的类，foreach会通过HASH_OF获取该对象的默认属性数组，然后对该数组进行foreach.
+而对于ZEND_ITER_OBJECT的类对象，则会通过调用对象实现的Iterator接口相关函数来进行foreach。
+
+这个例子展示了使用 foreach 时，迭代器方法的调用顺序。
+<?php
+class myIterator implements Iterator {
+    private $position = 0;
+    private $array = array(
+        "firstelement",
+        "secondelement",
+        "lastelement",
+    );  
+
+    public function __construct() {
+        $this->position = 0;
+    }
+
+    function rewind() {
+        var_dump(__METHOD__);
+        $this->position = 0;
+    }
+
+    function current() {
+        var_dump(__METHOD__);
+        return $this->array[$this->position];
+    }
+
+    function key() {
+        var_dump(__METHOD__);
+        return $this->position;
+    }
+
+    function next() {
+        var_dump(__METHOD__);
+        ++$this->position;
+    }
+
+    function valid() {
+        var_dump(__METHOD__);
+        return isset($this->array[$this->position]);
+    }
+}
+
+$it = new myIterator;
+
+foreach($it as $key => $value) {
+    var_dump($key, $value);
+    echo "\n";
+}
+?>
+
+输出结果：
+
+string(18) "myIterator::rewind"
+string(17) "myIterator::valid"
+string(19) "myIterator::current"
+string(15) "myIterator::key"
+int(0)
+string(12) "firstelement"
+
+string(16) "myIterator::next"
+string(17) "myIterator::valid"
+string(19) "myIterator::current"
+string(15) "myIterator::key"
+int(1)
+string(13) "secondelement"
+
+string(16) "myIterator::next"
+string(17) "myIterator::valid"
+string(19) "myIterator::current"
+string(15) "myIterator::key"
+int(2)
+string(11) "lastelement"
+
+string(16) "myIterator::next"
+string(17) "myIterator::valid"
+
+  
+优点：
+
+1.支持多种遍历方式。比如有序列表，我们根据需要提供正序遍历、倒序遍历两种迭代器。
+2.简化了聚合类。由于引入了迭代器，原有的集合对象不需要自行遍历集合元素了
+3.增加新的聚合类和迭代器类很方便，两个维度上可各自独立变化
+4.为不同的集合结构提供一个统一的接口，从而支持同样的算法在不同的集合结构上操作
+
+缺点:
+
+1.迭代器模式将存储数据和遍历数据的职责分离增加新的集合对象时需要增加对应的迭代器类，类的个数成对增加，在一定程度上增加系统复杂度
+
+
+使用场景：
+
+1.访问一个聚合对象内容而无须暴露它的内部显示
+2.使用返回迭代器的包或库时（如PHP5中的SPL迭代器）
+3.无法在一次的调用获取容器的所有元素时
+4.要处理数量巨大的无素时（数据库中的表以GB计的数据）
+
+
