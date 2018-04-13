@@ -101,6 +101,30 @@ string(17) "myIterator::valid"
 1.访问一个聚合对象内容而无须暴露它的内部显示
 2.使用返回迭代器的包或库时（如PHP5中的SPL迭代器）
 3.无法在一次的调用获取容器的所有元素时
-4.要处理数量巨大的无素时（数据库中的表以GB计的数据）
+4.要处理大量数据时（数据库中的表以GB计的数据）
 
+处理大量数据案例
+从mysql读取1000w条，一般情况可能会导致内存溢出。
+如果使用PDO::query的返回值类型的话，我们会发现，这个方法返回的 PDOStatement，正是对 Iterator 的实现。
+<?php
+$startMemory = memory_get_usage();
+$sql = 'select * from user';  
+$pdo = new \PDO('mysql:host=127.0.0.1;dbname=op_platform', 'root', '123456');  
+$pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);  
+$rows = $pdo->query($sql);  //var_dump($rows)打印结果 object(PDOStatement)[2] public 'queryString' => string 'select * from user' (length=18)
+$filename = date('Ymd') . '.csv'; //设置文件名  
+header('Content-Type: text/csv');  
+header("Content-Disposition: attachment;filename={$filename}");  
+$out = fopen('php://output', 'w');  
+fputcsv($out, ['id', 'username', 'password', 'create_time']);  
+  
+foreach ($rows as $row) {  
+    $line = [$row['id'], $row['username'], $row['password'], $row['create_time']];  
+    fputcsv($out, $line);  
+}  
+  
+fclose($out);  
+$memory = round((memory_get_usage() - $startMemory) / 1024 / 1024, 3) . 'M' . PHP_EOL;  
+file_put_contents('/tmp/test_used_memory.txt', $memory, FILE_APPEND);  
 
+ 在表中生成7位数量级的记录，执行上面的代码，通过查看内存使用，发现整个过程只占用了0.XM的内存，完全没有任何内存溢出的现象。
