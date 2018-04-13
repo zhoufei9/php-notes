@@ -127,4 +127,33 @@ fclose($out);
 $memory = round((memory_get_usage() - $startMemory) / 1024 / 1024, 3) . 'M' . PHP_EOL;  
 file_put_contents('/tmp/test_used_memory.txt', $memory, FILE_APPEND);  
 
- 在表中生成7位数量级的记录，执行上面的代码，通过查看内存使用，发现整个过程只占用了0.XM的内存，完全没有任何内存溢出的现象。
+在表中生成7位数量级的记录，执行上面的代码，通过查看内存使用，发现整个过程只占用了0.XM的内存，完全没有任何内存溢出的现象。
+
+
+迭代生成器 yield
+生成器也是一个函数，不同的是这个函数的返回值是依次输出，而不是只返回一个单独的值。或者，换句话说，生成器使你更方便的实现了迭代器接口。
+下面通过实现一个xrange函数来简单说明：
+<?php
+function xrange($start, $end, $step = 1) {
+    for ($i = $start; $i <= $end; $i += $step) {
+        yield $i;
+    }
+}
+foreach (xrange(1, 1000000) as $num) {
+    echo $num, "\n";
+}
+
+上面这个xrange（）函数提供了和PHP的内建函数range()一样的功能。但不同的是range()函数返回的是一个包含属组值从1到100万的数组。而xrange（）函数返回的
+是依次输出这些值的一个迭代器，并不会真正以数组形式返回. 这种方法的优点是显而易见的，它可以让你在处理大数据集合的时候不用一次性的加载到内存中。
+也可以不通过生成器来实现这个功能，而是通过继承Iterator接口实现。但通过使用生成器实现起来会更方便，不用再去实现iterator接口中的5个方法了。
+生成器是一种可中断的函数，在它里面，yield构成了中断点。 紧接着上面的例子，如果你调用xrange(1,1000000)的话，xrange()函数里代码其实并没有真正地运行。
+相反，PHP只是返回了一个实现了迭代器接口的生成器类实例：
+<?php
+    $range = xrange(1, 1000000);
+    var_dump($range); // object(Generator)#1
+    var_dump($range instanceof Iterator); // bool(true)
+
+你对对象调用迭代器方法一次，其中的代码运行一次。例如，如果你调用$range->rewind(), 那么xrange()里的代码就会运行到控制流第一次出现yield的地方。
+而函数内传递给yield语句的返回值可以通过$range->current()获取。 为了继续执行生成器中的代码，你必须调用$range->next()方法。这将再次启动生成器，
+直到下一次yield语句出现。因此，连续调用next()和current()方法 你将能从生成器里获得所有的值，直到再没有yield语句出现。对xrange()来说，
+这种情形出现在$i超过$end时。在这中情况下, 控制流将到达函数的终点，因此将不执行任何代码。一旦这种情况发生，vaild()方法将返回假，这时迭代结束。 
