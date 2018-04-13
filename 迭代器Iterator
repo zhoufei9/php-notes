@@ -1,4 +1,4 @@
-前段时间开发的时候碰到返回Iterator数据，使用var_dump打印数据只有一个空对象
+前段时间开发的时候碰到返回Iterator数据，使用var_dump打印数据
 class MongoDB\Model\CollectionInfoCommandIterator#27 (0) {
 }
 一时没搞明白是什么原因，最后才发现是Iterator隐藏了数据。
