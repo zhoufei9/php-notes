@@ -1,0 +1,21 @@
+使用xdebug profiler 做性能分析
+网上找了个很多文章说是Wincachegrind可以分析xdebug的profiler，然而我没有成功。一直报错
+Parser error: At this point at least main instance is expected.
+cachegrind.out line number: 7
+CurInst: NULL
+Stack: empty
+Call buffer: empty
+
+后来看到一篇文章说是很久不维护了，webgrind 更是出现奇怪的问题，最后推荐使用 PhpStorm 分析解决。
+PhpStorm -> Tools -> Analyze Xdebug Profiler Snapshot -> 选择xdebug profiler -》over
+
+简单记录一下xdebug 增加profiler的配置
+xdebug.profiler_output_dir  存放生成的文件的路径
+
+xdebug.profiler_enable   profiler功能的开关，默认值0，如果设为1，则每次请求都会生成一个性能报告文件。 
+
+xdebug.profiler_enable_trigger 默认值也是0，如果设为1 则当我们的请求中包含XDEBUG_PROFILE参数时才会生成性能报告文件。
+例如http://localhost/index.php?XDEBUG_PROFILE=1 (当然我们必须关闭xdebug.profiler_enable)。使用该功能就捕获不到页面发送的ajax请求，
+如果需要捕获的话我们就可以使用xdebug.profiler_enable功能。
+
+xdebug.profiler_output_name  生成的文件的名字，默认 cachegrind.out.%t.%p
