@@ -1,0 +1,23 @@
+系统报出一SQL异常，内容如下：
+
+100000: SQLSTATE[HY000]: General error: 1795 OCIStmtExecute: ORA-01795: maximum number of expressions in a list is 1000
+ (/var/www/PDO_OCI-1.0/oci_statement.c:142)]
+
+找出抛异常时执行的SQL语句，内容类似：SELECT * FROM test T WHERE T.DUMMY IN ('1', '2', '3', ...)，只是IN后括号里的主键值多了些，其它没啥特别的。
+
+看ORA-01795中给出的内容是SQL语句的 expressions 中list接受的最大值是1000，查了下ORA-01795的说明，确定问题出在IN后括号里的主键值超过1000上。
+
+解决思路用IN，但是把条件分成多个少于1000的IN即：SELECT * FROM DUAL T WHERE T.DUMMY IN ('1', '2', '3',...,'1000') OR IN ('1001', '1002', ..., '2000') OR ...
+
+附代码：
+
+foreach ($tableNameArr as $key => $v) {
+    $tableNameArrTemp[] = $v;
+    if (($key+1) % 500 ==0 || $tableNameArrCount == ($key +1)) {
+        $tableNameListStr .= "'" . implode("','", $tableNameArrTemp) . "'";
+        if ($tableNameArrCount != ($key +1)) {
+            $tableNameListStr .= ') or TABLE_NAME in (';
+        }
+        $tableNameArrTemp = [];
+    }
+}
