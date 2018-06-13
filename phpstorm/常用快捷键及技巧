@@ -1,0 +1,26 @@
+PHPStorm 就是一神器，jetbrains 一家都牛，下面是日常的一些快捷键，掌握了基本就不用鼠标了。
+CTRL+单击        # 定位到类、函数、变量的声明位置（同：CTRL+B）
+CTRL+SHIFT+N    # 按名称查找文件，并快速进入
+ALT+F1          # 在项目中定位当前文件所在位置
+CTRL+F12        # 当前文件的方法列表
+CTRL+F          # 在当前文件中查找字符串（当前文件替换用：CTRL+R）
+CTRL+SHIFT+F    # 在当前项目/路径中查找字符串（说明：这个快捷键可能和输入法的快捷键有冲突。替换用：CTRL+SHIFT+R）
+
+CTRL+ALT+L      # 格式化代码
+F2              # 快速定位错误或警告，反向用SHIFT+F2
+CTRL+ALT+←/→    # 返回上次编辑的位置
+CTRL+Z          # 撤销
+CTRL+SHIFT+Z    # 重做
+ALT+J           # 依次多选编辑，同Sublime的CTRL+D。反方向用ALT+SHIFT+J
+ALT+左键拖动     # 垂直选择
+
+CTRL+/          # 行注释
+CTRL+SHIFT+/    # 块注释
+ALT+ ↑/↓        # 在方法间快速移动
+CTRL+G          # 转到行
+双击SHIFT        # 在当前项目中搜索（文件名、类、方法、函数等等）
+
+
+
+提高PHP开发效率， PhpStorm必装的几款插件
+http://www.cnblogs.com/mclaoliu/archive/2018/05/04/8992522.html
