@@ -1,0 +1,57 @@
+接口是什么？
+
+接口是通过 interface 关键字来定义的，就像定义一个标准的类一样，但其中定义所有的方法都是空的。
+接口的思想是指定一个实现了该接口的类必须实现该接口的所有方法，方法里具体内容由实现接口的类决定。
+在PHP中，可以通过接口解决多重继承的问题，类似于Java的接口实现。
+ 
+为什么要用接口？接口到底有什么好处？
+接口本身并不提供实现，只是提供一个规范。如果我们知道一个类实现了某个接口，那么就知道了可以调用该接口的那些方法，我们只需要知道这些就够了。
+ 
+什么时候用接口？
+
+1、定规范，保持统一性；
+如在实际开发中，可能想规定每个控制器中方法名称统一且必须有，这时可以让控制器都实现规定好的接口，保证在控制器中方法统一。
+
+2、多个平级的类需要去实现同样的方法，只是实现方式不一样
+
+
+接口使用规范
+
+接口不能实例化
+接口的属性必须是常量
+接口的方法必须是public【默认public】，且不能有函数体
+类必须实现接口的所有方法
+一个类可以同时实现多个接口，用逗号隔开
+接口可以继承接口【用的少】
+
+interface usb{
+    const brand = 'siemens';    // 接口的属性必须是常量
+    public function connect();  // 接口的方法必须是public【默认public】，且不能有函数体
+}
+// new usb();  // 接口不能实例化
+
+// 类实现接口
+class Android implements usb{
+    public function connect(){  // 类必须实现接口的所有方法
+        echo '实现接口的connect方法';
+    }
+}
+
+
+interface usbA{
+    public function connect();
+}
+
+interface usbB{
+    public function contact();
+}
+
+// 类可以同时实现多个接口
+class mi implements usbA,usbB{
+    public function connect(){
+
+    }
+    public function contact(){
+
+    }
+}
