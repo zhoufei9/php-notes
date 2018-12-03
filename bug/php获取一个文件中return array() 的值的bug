@@ -1,0 +1,18 @@
+获取一个文件中return array() 的值
+
+原test.php 文件代码
+<?
+return array(
+    'name' => 'andy',
+    'sex' => 'male'
+);
+
+
+get.php文件
+<?php
+$set = include("test.php");
+print_r($set);
+exit;
+
+在php5.6.30中发现include获取的值一直是1
+查看include函数说明也没发现什么，后来发现include文件的开头没有php标识，加上之后就正常了。。。
