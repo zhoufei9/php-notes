@@ -1,0 +1,80 @@
+大整数相加
+function plus($a, $b) {
+	if (!is_string($a) || !is_string($b)) {
+		echo '参数必须是字符串类型';
+		return;
+	}
+	$len = strlen($a) > strlen($b) ?  strlen($a) : strlen($b);
+
+	/// 反转字符串
+	$ar = strrev($a);
+	$br = strrev($b);
+
+	$result = '';
+	for($i = 0 ;$i < $len; $i++) {
+		//从个位开始加，缺的补0 
+		$temp = (empty($ar[$i]) ? 0 : $ar[$i]) + (empty($br[$i]) ? 0 : $br[$i]);
+		if (!empty($apendOne)) {
+			//当后一位进1时加1
+			$temp += 1;
+		}
+		
+		$apendOne = false;
+		if ($temp > 9) {
+			/// 如果结果大于9 向前进1 减10 做标记
+			$apendOne = true;
+			$temp -= 10;
+		}
+		$result = $temp . $result;
+	}
+	
+	return (string)$result;
+}
+
+echo plus("321312312312313123131231231232", "13") . '<br>';
+echo 321312312312313123131231231232 +13;
+
+结果：
+321312312312313123131231231245
+3.2131231231231E+29
+
+
+大整数相减
+function minus($a, $b) {
+	if (!is_string($a) || !is_string($b)) {
+		echo '参数必须是字符串类型';
+		return;
+	}
+	$len = strlen($a) > strlen($b) ?  strlen($a) : strlen($b);
+	
+	/// 反转字符串
+	$ar = strrev($a);
+	$br = strrev($b);
+
+	$result = '';
+	for($i = 0 ;$i < $len; $i++) {
+		//从个位开始减，缺的补0 
+		$temp = (empty($ar[$i]) ? 0 : $ar[$i]) - (empty($br[$i]) ? 0 : $br[$i]);
+		if (!empty($borrowOne)) {
+			//当后一位借1时减1
+			$temp -= 1;
+		}
+		
+		$borrowOne = false;
+		if ($temp < 0) {
+			/// 如果结果是负数 向前借1 加10 做标记
+			$borrowOne = true;
+			$temp += 10;
+		}
+		$result = $temp . $result;
+	}
+	
+	return $result;
+}
+
+echo minus("321312312312313123131231231232", "13") . '<br>';
+echo 321312312312313123131231231232 -13;
+
+结果：
+321312312312313123131231231219
+3.2131231231231E+29
