@@ -1,0 +1,84 @@
+Apache
+音译为阿帕奇，是Apache软件基金会的一个开放源码Web服务器，可以运行几乎所有的计算机平台，其次开放的API接口，任何组织和个人都可以在它上面扩展和增加
+各种需要功能，达到为自己量身定制的功能。再次是因为老，所有相关文档很齐全，甚至在windows平台很多爱好者都为它开发了各种图形界面，
+连菜鸟也能入手Apache。因此前期它迅速占领了70%的web服务器市场。
+
+Nginx
+Nginx ("engine x") 是一个高性能的 HTTP 和 反向代理服务器，也是一个 IMAP/POP3/SMTP 代理服务器。
+Nginx 是由 Igor Sysoev 为俄罗斯访问量第二的 Rambler.ru 站点开发的。其次它和Apache一样是开源的，BSD-like 协议下发行。它最强劲也最具有竞争性
+为其高性能和反向代理，这两项在该领域独领风骚。
+ 
+Netcraft 发布了 2018 年 4 月 Web 服务器调查报告，网站的服务器市场排名前三的是 Apache、nginx、Microsoft
+https://cloud.tencent.com/developer/news/197901
+目前有超过4.5亿个网站使用apache http服务器，但这不是Apache软件基金会提供的唯一Web服务器产品。还有 Apache Tomcat ，但其部署是很难量化的。
+Tomcat 通常用作后端应用程序服务器，Apache Tomcat Connectors 项目将其连接到其他面向网络的服务器，如 Apache 和 Microsoft IIS。在多数情况下，
+Tomcat 无法被动检测到。
+Tomcat 还包含自己的本地 HTTP 连接器，可以将其用作独立的 HTTP 服务器，并且可以从其“Apache Tomcat”服务器中被动地识别。但是，这个配置并不常用：
+本月只有 10,300 个网站显示为了apache tomcat 服务器，并且这些网站中只有 35 个排名在百万之内。
+
+nginx 相对 apache 的优点：
+1.轻量级，比apache占用更少的内存与资源
+2.在高并发下 nginx能相比apache保持低资源低消耗更好的性能
+3.nginx 处理静态文件好，静态处理性能比 apache 高三倍以上
+4.nginx 更好的支持7层负载均衡  
+5.Nginx 配置简洁, Apache 复杂  
+其他（略）
+
+apache 相对nginx 的优点：
+1.rewrite ，比nginx 的rewrite 强大
+2.各种功能模块实现得比nginx好点，例如ssl的模块就比前者好，可配置项多。
+其他（略）
+
+小知识点
+apache
+三种稳定的MPM（Multi-Processing Module，多进程处理模块
+1 Prefork MPM （多进程单线程，阻塞型）
+优点：成熟，兼容所有新老模块。进程之间完全独立，使得它非常稳定。同时，不需要担心线程安全的问题。（我们常用的mod_php，PHP的拓展不需要支持线程安全）
+缺点：一个进程相对占用更多的系统资源，消耗更多的内存。而且，它并不擅长处理高并发请求，在这种场景下，它会将请求放进队列中，一直等到有可用进程，请求才会被处理。
+创建的进程数，最多达到每秒32个，直到满足MinSpareServers设置的值为止。这就是预派生（prefork）的由来。这种模式可以不必在请求到来时再产生新的进程，从而减小了系统开销以增加性能。
+并发量请求数到达MaxClients（如256）时，而空闲进程只有10个。apache为继续增加创建进程。直到进程数到达256个。
+当并发量高峰期过去了，并发请求数可能只有一个时，apache逐渐删除进程，直到进程数到达MaxSpareServers为止。
+
+2、Worker MPM （多进程多线程，阻塞型）
+优点：占据更少的内存，高并发下表现更优秀。
+缺点：必须考虑线程安全的问题，因为多个子线程是共享父进程的内存地址的。如果使用keep-alive的长连接方式，也许中间几乎没有请求，这时就会发生阻塞，
+线程被挂起，需要一直等待到超时才会被释放。如果过多的线程，被这样占据，也会导致在高并发场景下的无服务线程可用。（该问题在prefork模式下，同样会发生）
+
+3、Event MPM （多进程多线程，非阻塞型）
+这个是 Apache中最新的模式，在现在版本里的已经是稳定可用的模式。它和 worker模式很像，最大的区别在于，它解决了
+keep-alive 场景下
+，长期被占用的线程的资源浪费问题（某些线程因为被keep-alive，挂在那里等待，中间几乎没有请求过来，一直等到超时）。
+event MPM中，会有一个专门的线程来管理这些 keep-alive 类型的线程，当有真实请求过来的时候，将请求传递给服务线程，执行完毕后，又允许它释放。这样，一个线程就能处理几个请求了，实现了异步非阻塞。
+event MPM在遇到某些不兼容的模块时，会失效，将会回退到worker模式，一个工作线程处理一个请求。官方自带的模块，全部是支持event MPM的。 
+  
+
+HTTP服务器：
+HTTP服务器本质上也是一种应用程序——它通常运行在服务器之上，绑定服务器的IP地址并监听某一个tcp端口来接收并处理HTTP请求，这样客户端（一般来说是IE,
+Firefox，Chrome这样的浏览器）就能够通过HTTP协议来获取服务器上的网页（HTML格式）、文档（PDF格式）、音频（MP4格式）、视频（MOV格式）等等资源。
+
+严格的来说，Apache/Nginx 应该叫做「HTTP Server」；而 Tomcat 则是一个「Application Server」，或者更准确的来说，是一个「Servlet/JSP」应用的容器。
+Apache HTTP Server和Nginx都能够将某一个文本文件的内容通过HTTP协议返回到客户端，但是这个文本文件的内容是固定的——也就是说无论何时、任何人访问它得到
+的内容都是完全相同的，这样的资源我们称之为静态资源。动态资源则与之相反，在不同的时间、不同的客户端访问得到的内容是不同的，例如：包含显示当前时间的
+页面、显示当前IP地址的页面。Tomcat是Apache基金会下的另外一个项目，与Apache HTTP Server相比，Tomcat能够动态的生成资源并返回到客户端。
+如果想要使用Java程序来动态生成资源内容，使用这一类HTTP服务器很难做到。Java Servlet技术以及衍生的Java Server Pages技术可以让Java程序也具有处理HTTP
+请求并且返回内容（由程序动态控制）的能力，Tomcat正是支持运行Servlet/JSP应用程序的容器（Container）:
+
+Tomcat运行在JVM之上，它和HTTP服务器一样，绑定IP地址并监听TCP端口，同时还包含以下指责：
+管理Servlet程序的生命周期
+将URL映射到指定的Servlet进行处理
+与Servlet程序合作处理HTTP请求——根据HTTP请求生成HttpServletResponse对象并传递给Servlet进行处理，将Servlet中的HttpServletResponse对象生成的内容
+返回给浏览器
+虽然Tomcat也可以认为是HTTP服务器，但通常它仍然会和Nginx配合在一起使用：
+动静态资源分离——运用Nginx的反向代理功能分发请求：所有动态资源的请求交给Tomcat，而静态资源的请求（例如图片、视频、CSS、JavaScript文件等）则直接由
+Nginx返回到浏览器，这样能大大减轻Tomcat的压力。
+负载均衡，当业务压力增大时，可能一个Tomcat的实例不足以处理，那么这时可以启动多个Tomcat实例进行水平扩展，而Nginx的负载均衡功能可以把请求通过算法分
+发到各个不同的实例进行处理
+
+ 
+
+
+
+
+
+
+ 
