@@ -1,0 +1,40 @@
+1.下载
+下载nexus http://www.sonatype.org/nexus/go/
+或者wget 2.14版本的
+wget https://sonatype-download.global.ssl.fastly.net/nexus/oss/nexus-2.14.5-02-bundle.tar.
+
+2.配置
+解压到usr目录下
+mv nexus-2.14.5-02-bundle.tar.gz /usr/local/
+cd /usr/local/
+tar -zxvf nexus-2.14.5-02-bundle.tar.gz 
+解压后得到两个文件夹nexus-2.14.5-02（核心文件）和sonatype-work（存储数据）
+
+配置nexus
+1）端口配置
+默认使用8081，端口可在/nexus-2.14.5-02/conf/nexus.properties中修改
+
+2）运行角色
+vim /usr/local/nexus-2.14.5-02/bin/nexus
+RUN_AS_USER=root
+
+3）修改java的绝对路径
+vim /usr/local/nexus-2.14.5-02/bin/jsw/conf/wrapper.conf
+wrapper.java.command=java所在路径/bin/java
+
+4）开机启动配置
+vim /etc/rc.local
+/usr/local/nexus-2.14.5-02/bin/nexus start
+
+若不配置开机启动直接
+/usr/local/nexus-2.14.5-02/bin/nexus start  启动即可
+
+访问
+浏览器打开```http://域名:8081/nexus/````就可以成功访问到，默认账号admin密码admin123
+
+
+仓库迁移
+Nexus的构件仓库都保存在sonatype-work目录中，该目录的位置由nexus/conf/nexus.properties配置文件指定。 
+仓库迁移需要两个过程：备份和还原
+备份仓库：将sonatype-work文件夹整体备份即可，也可以选择只备份最重要的两个文件夹索引（indexer）和仓库（storage）
+还原仓库：将备份好的sonatype-work文件拷贝到新的服务器中。然后修改nexus/conf/nexus.properties配置文件，重新指定仓库的目录。
